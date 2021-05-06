@@ -22,12 +22,32 @@ from treewidget.fields import TreeForeignKey
 class Item(models.Model):
     TYPES = [('liq_edible', 'Líquido comestible'), ('liq_cleaning', 'Líquido de limpieza'), ('sol_unit_edible', 'Sólido comestible por unidades'),
                ('sol_weight_edible', 'Sólido comestible por peso'), ('sol_cleaning', 'Sólidos para limpieza'), ('supply', 'Suministro'),
-               ('consumable', 'Consumible genérico'), ('tool', 'Herramienta'), ('furniture', 'Mobiliario')]
+               ('consumable', 'Consumible genérico'), ('tool', 'Herramienta'), ('furniture', 'Mobiliario'), ('other', 'Otros')]
     name = models.CharField(verbose_name=_("Nombre de objeto"), max_length=200)
+    type = models.CharField(verbose_name=_("Tipo de objeto"), max_length=60, choices=TYPES, default='other')
+    amount = models.DecimalField(verbose_name=_("Cantidad"), decimal_places=3, max_digits=9, default=0)
 
 class Room(models.Model):
-    name = models.CharField(verbose_name=_("Nombre de habitación"), max_length=200)
+    name = models.CharField(verbose_name=_("Nombre de habitación"), max_length=200, blank=False)
 
 class StorageSpace(models.Model):
-    name = models.CharField(verbose_name=_("Nombre de espacio de almacenaje"), max_length=200)
+    name = models.CharField(verbose_name=_("Nombre de espacio de almacenaje"), max_length=200, blank=False)
     room = models.ForeignKey(to=Room, on_delete=models.CASCADE)
+
+class SmartDevice(models.Model):
+    name = models.CharField(verbose_name=_("Nombre de objeto inteligente"), max_length=200, blank=False)
+    room = models.ForeignKey(to=Room, on_delete=models.CASCADE)
+
+class SmartMethod(models.Model):
+    name = models.CharField(verbose_name=_("Nombre de método"), max_length=200, blank=False)
+    object = models.ForeignKey(to=SmartDevice, on_delete=models.CASCADE)
+
+class Movement(models.Model):
+    name = models.CharField(verbose_name=_("Nombre de movimiento"), max_length=200, blank=False)
+    date = models.DateTimeField(verbose_name=_("Fecha"), null=False)
+    recurrence = models.IntegerField(verbose_name=_("Días de recurrencia"), blank=True)
+    amount = models.DecimalField(verbose_name=_("Cantidad"), decimal_places=2, max_digits=10)
+
+class Recipe(models.Model):
+    name = models.CharField(verbose_name=_("Nombre de receta"), max_length=200, blank=False)
+    image = models.ImageField(upload_to='pics', blank=True)
