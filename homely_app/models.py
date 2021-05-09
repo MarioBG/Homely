@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib import admin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,6 +11,7 @@ from martor.models import MartorField
 import django.core.validators
 from ordered_model.models import OrderedModel
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from mptt.models import MPTTModel
 import mptt
 from django.db.models import F
@@ -50,4 +51,23 @@ class Movement(models.Model):
 
 class Recipe(models.Model):
     name = models.CharField(verbose_name=_("Nombre de receta"), max_length=200, blank=False)
-    image = models.ImageField(upload_to='pics', blank=True)
+    image = models.ImageField(upload_to='recipePics/%Y%m%d-%H%M/', blank=True)
+
+class Floor(models.Model):
+    floorplan = models.FileField(verbose_name="Plano de planta", upload_to="floorplans/", validators=[FileExtensionValidator(['svg'])])
+
+class Flat(models.Model):
+    floorCodename = models.CharField(verbose_name="Código en el SVG del plano", max_length=64)
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(to=django.contrib.auth.models.User, related_name="user", on_delete=models.CASCADE)
+    flat = models.ForeignKey(to=Flat, on_delete=models.CASCADE, related_name="piso")
+
+class Conversation(models.Model):
+    owner = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, related_name="owner")
+    other = models.ForeignKey(to=UserProfile, on_delete=models.CASCADE, related_name="other")
+
+class Message(models.Model):
+    text = models.CharField(blank=False, max_length=4096)
+    timestamp = models.DateTimeField()
+    mine = models.BooleanField()
