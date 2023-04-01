@@ -23,4 +23,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('martor/', include('martor.urls')),
+    path('', views.index, name='index'),
+    path('recetas/', views.recetas, name='recetas'),
+    path('recetas/<int:pk>/', views.receta, name='recipe-detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) ##TODO Quick and nasty workaround, not for production

@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load auth_extras %}
+{% load mathfilters %}
+
+{% block css_pre %}<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">{% endblock %}
+
+{% block content %}
+
+    <div id="banner-area">
+		<img src="/static/images/banner/banner2.jpg" alt ="" />
+		<div class="parallax-overlay"></div>
+			<!-- Subpage title start -->
+			<div class="banner-title-content">
+	        	<div class="text-center">
+		        	<h2>{% if receta is not None %}{{ receta.name }}{% else %}Recetario{% endif %}</h2>
+                    {% if receta is not None %}
+                            <div>
+                                {% for t in receta.tags.all %}<span class="badge badge-pill badge-foodtag">{{ t.name }}</span>{% endfor %}
+                            </div>
+                    {% endif %}
+		        	<ul class="breadcrumb">
+                        <li><a href="/">Inicio</a></li>
+                        <li><a href="/recetas"> Recetas</a></li>
+			            {% if receta is not None %}<li> {{ receta.name }}</li>{% endif %}
+		          	</ul>
+	          	</div>
+          	</div><!-- Subpage title end -->
+	</div><!-- Banner area end -->
+
+
+    <section id="main-container" class="portfolio portfolio-box">
+		<div class="container">
+            {% if recetas is not None %}
+                <!--Isotope filter start -->
+                {% if tags is not None %}
+                <div class="row text-center">
+                    <div class="isotope-nav" data-isotope-nav="isotope">
+                        <ul>
+                            <li><a href="#" class="active" data-filter="*">Todos</a></li>
+                            {% for t in tags %}
+                            <li><a href="#" data-filter=".{{ t.key }}">{{ t.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div><!-- Isotope filter end -->
+                {% endif %}
+
+                <div class="row">
+                    <div id="isotope" class="isotope">
+                        {% for p in recetas %}
+                        <div class="col-md-6 col-sm-6 {% for t in p.tags.all %} {{ t.key }} {% endfor %} isotope-item">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="team team-list-square wow fadeIn">
+                                        <div class="column col-md-3 col-sm-3">
+                                            <div class="img-square">
+                                                <a class="view" data-rel="prettyPhoto" href="{% if p.image %}{{ p.image.url }}{% else %}https://i.imgur.com/x4LZC6A.png{% endif %}">
+                                                    <img width="200px" height="200px" {% if p.jugador %}class="grayscaled"{% endif %} src="{% if p.image %}{{ p.image.url }}
+                                                        {% else %}https://i.imgur.com/x4LZC6A.png{% endif %}" alt=""></a>
+                                            </div>
+                                        </div>
+                                        <div class="column col-md-3 col-sm-3">
+                                            <div class="team-content">
+                                                <h3><a href="/recetas/{{ p.pk }}">{{ p.name }}</a></h3>
+                                                <p>{{ p.position }}</p>
+                                                <p class="desc">{{ p.description }}</p>
+                                                <div>
+                                                    {% for t in p.tags.all %}<span class="badge badge-pill badge-foodtag">{{ t.name }}</span>{% endfor %}
+                                                    {% if p.jugador %}<span class="badge badge-pill badge-danger">Reservado ({{ p.jugador }})</span>{% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!--/ Team 1 end -->
+                        {% endfor %}
+                    </div><!-- Isotope content end -->
+                </div><!--/ Content row end -->
+            {% else %}
+                <div class="row">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                        <div class="post-content">
+                            <p>{{ receta.process|markdown }}</p>
+                            <div class="gap-20"></div>
+
+                            <div class="row">
+                                <div class="feature-box col-sm-6 wow fadeInDown" data-wow-delay=".5s">
+                                    <span class="feature-icon pull-left" ><i class="fas fa-star"></i></span>
+                                    <div class="feature-content">
+                                        <h3>Valoración</h3>
+                                        <p>{{ receta.rating }}/10</p>
+                                    </div>
+                                </div><!--/ End first featurebox -->
+
+                                <div class="feature-box col-sm-6 wow fadeInDown" data-wow-delay=".5s">
+                                    <span class="feature-icon pull-left" ><i class="fas fa-clock"></i></span>
+                                    <div class="feature-content">
+                                        <h3>Tiempo de cocinado</h3>
+                                        {% with minutes=receta.duration.seconds|div:60 %}
+                                            <p>{{ minutes|intdiv:60|add:"0" }}h {{ minutes|mod:60|add:"0" }}min</p>
+                                        {% endwith %}
+                                    </div>
+                                </div><!--/ End 2nd featurebox -->
+                            </div>
+
+                            <div class="gap-20"></div>
+
+                            <div class="row">
+
+                                <div class="feature-box col-sm-6 wow fadeInDown" data-wow-delay=".5s">
+                                    <span class="feature-icon pull-left" ><i class="fas fa-bolt"></i></span>
+                                    <div class="feature-content">
+                                        <h3>Dificultad</h3>
+                                        <p>{{ receta.difficulty|add:"0" }}/10</p>
+                                    </div>
+                                </div><!--/ End 1st featurebox -->
+
+                                <div class="feature-box col-sm-6 wow fadeInDown" data-wow-delay=".5s">
+                                    <span class="feature-icon pull-left" ><i class="fa fa-heart"></i></span>
+                                    <div class="feature-content">
+                                        <h3>Puntuación saludable</h3>
+                                        <p>{{ receta.healthiness|add:"0" }}/10</p>
+                                    </div>
+                                </div><!--/ End 2nd featurebox -->
+                            </div>
+
+
+                        </div><!--/ post content end -->
+
+                    </div><!--/ Content col end -->
+
+                    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                        <div class="sidebar sidebar-right">
+                            <img src="{{ receta.image.url }}" class="img-responsive"  alt="" />
+                            <!-- category start -->
+                            {% comment %}<div class="widget widget-categories">
+                                <h3 class="widget-title">Atributos</h3>
+                                <ul class="category-list clearfix">
+                                  <li><a href="#">Escuela de magia</a><span class="posts-count"> {{ spell.school }}</span></li>
+                                  <li><a href="#">Nivel</a><span class="posts-count"> {% if spell.level == 0 %}Truco{% else %}{{ spell.level }}{% endif %}</span></li>
+                                  <li><a href="#">Componente verbal</a><span class="posts-count"> {% if spell.verbalComponent %}Sí{% else %}No{% endif %}</span></li>
+                                  <li><a href="#">Componente somático</a><span class="posts-count"> {% if spell.somaticComponent %}Sí{% else %}No{% endif %}</span></li>
+                                  <li><a href="#">Componente material</a><span class="posts-count"> {% if spell.materialComponent %}Sí{% else %}No{% endif %}</span></li>
+                                  {% if spell.materialComponent %}<li><a href="#">Requisitos materiales</a><span class="posts-count"> {{ spell.materialRequirements|markdown }}</span></li>{% endif %}
+                                  <li><a href="#">Requiere concentración</a><span class="posts-count"> {% if spell.concentration %}Sí{% else %}No{% endif %}</span></li>
+                                  <li><a href="#">Daño/efecto</a><span class="posts-count"> {{ spell.effect|markdown }}</span></li>
+                                </ul>
+                            </div><!-- category end -->
+
+                            <!-- tags start -->
+                            <div class="widget widget-tags">
+                                <h3 class="widget-title">Clases</h3>
+                                <ul class="unstyled clearfix">
+                                    {% for class in spell.classes.all %}<li><a href="/viewClass?classId={{ class.id }}">{{ class.name }}</a></li>{% endfor %}
+                                </ul>
+                            </div><!-- tags end -->{% endcomment %}
+
+
+                        </div><!--/ Sidebar end -->
+                    </div><!--/ Sidebar col end -->
+                </div><!--/ row end -->
+            {% endif %}
+		</div><!-- Container end -->
+	</section><!-- Portfolio end -->
+
+	{% endblock %}
+
+{% block javascript %}
+<script>
+const INITIAL_CONTENT = '<div style="margin:5px 0;">Loading...</div>'
+
+function applyStyles(popper, tooltip) {
+  // Because the tooltip has `position: absolute`,
+  // it no longer affects the parent popper's layout.
+  // We need to explicitly give it a width.
+  popper.style.width = '200px'
+
+  // Setup transition styles on the tooltip itself
+  tooltip.style.transitionDuration = '0.2s'
+  tooltip.style.transitionProperty = 'visibility, opacity, height'
+}
+
+function animateHeight(instance, instanceContent) {
+  const { popper } = instance
+  const { tooltip, content } = instance.popperChildren
+
+  function onTransitionEnd(event) {
+    if (event.target === event.currentTarget) {
+      content.style.opacity = '1'
+      instance.setContent(instanceContent)
+    }
+  }
+
+  // Wait until the height transition has finished before
+  // fading the content in. Since we have `overflow: hidden`
+  // on the tooltip this isn't actually needed, but if you
+  // have an arrow element it will be.
+  if (!instance._transitionEndListener) {
+    instance._transitionEndListener = onTransitionEnd
+  }
+
+  tooltip.addEventListener('transitionend', onTransitionEnd)
+
+  // Store the base height of the tooltip when it has the
+  // initial Loading... content.
+  if (!instance._baseHeight) {
+    instance._baseHeight = tooltip.clientHeight
+  }
+
+  // Here is where we find out the height of the tooltip
+  // when it has the content. We could technically hardcode
+  // 200px as the value, but it's useful to know how to do
+  // this with dynamic content.
+  content.style.opacity = '0'
+
+  // Temporarily set the image as the tooltip's content
+  // so we can find out the final height of the tooltip.
+  instance.setContent(instanceContent)
+  const height = tooltip.clientHeight
+
+  // Apply the height to the parent popper element.
+  popper.style.height = height + 'px'
+
+  // Reset the tooltip's height to the base height.
+  tooltip.style.height = instance._baseHeight + 'px'
+
+  // Cause reflow so we can start the height transition.
+  void tooltip.offsetHeight
+
+  // Start the transition.
+  tooltip.style.height = height + 'px'
+
+  // Remove the Loading... content and wait until the
+  // transition finishes.
+  instance.setContent('')
+}
+
+tippy('.wikilink', {
+  arrow: true,
+  followCursor: 'horizontal',
+  arrowType: 'round',
+  content: INITIAL_CONTENT,
+  animation: 'fade',
+  animateFill: false,
+  theme: 'ajax',
+  async onShow(instance) {
+    if (instance.state.isFetching === true || instance.state.canFetch === false) {
+      return
+    }
+
+    instance.state.isFetching = true
+    instance.state.canFetch = false
+
+    applyStyles(instance.popper, instance.popperChildren.tooltip)
+
+    try {
+      const response = await fetch('https://unsplash.it/200/?random')
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+
+      // If the tooltip hid before finishing the request, stop further action
+      if (!instance.state.isVisible) {
+        return
+      }
+
+      const img = new Image()
+      img.width = 200
+      img.height = 200
+      img.src = url
+
+      animateHeight(instance, img)
+    } catch (error) {
+      instance.setContent('An error occurred')
+    } finally {
+      instance.state.isFetching = false
+    }
+  },
+  onHidden(instance) {
+    const { tooltip } = instance.popperChildren
+    instance.state.canFetch = true
+    instance.setContent(INITIAL_CONTENT)
+    tooltip.style.height = null
+    tooltip.removeEventListener('transitionend', instance._transitionEndListener)
+    instance._transitionEndListener = null
+  }
+})
+    </script>
+{% endblock %}
