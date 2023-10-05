@@ -1,4 +1,3 @@
-import telegram
 from django import db
 from django.shortcuts import render, redirect, get_list_or_404
 from rest_framework import generics, permissions
@@ -16,7 +15,6 @@ from homely_app.models import *
 from django.db import connections, transaction
 from django.core.exceptions import ValidationError
 from rest_framework.response import Response
-from django_telegrambot.apps import DjangoTelegramBot
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 
